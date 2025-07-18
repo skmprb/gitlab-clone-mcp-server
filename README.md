@@ -10,7 +10,7 @@ A comprehensive Model Context Protocol (MCP) server that provides seamless GitLa
 
 ```bash
 # Install with uvx (recommended)
-uvx gitlab-clone-mcp-server
+uvx --from gitlab-clone-mcp-server gitlab-mcp
 
 # Or install as a tool
 uv tool install gitlab-clone-mcp-server
@@ -102,7 +102,7 @@ uv tool install gitlab-clone-mcp-server
 
 ### Using uvx (Recommended)
 ```bash
-uvx gitlab-clone-mcp-server
+uvx --from gitlab-clone-mcp-server gitlab-mcp
 ```
 
 ### Using uv
