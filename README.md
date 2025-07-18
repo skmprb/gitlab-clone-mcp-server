@@ -144,7 +144,10 @@ Add to your Claude Desktop config (`%APPDATA%\Claude\claude_desktop_config.json`
   "mcpServers": {
     "gitlab": {
       "command": "uvx",
-      "args": ["gitlab-clone-mcp-server"],
+      "args": [
+        "--from", "gitlab-clone-mcp-server",
+        "gitlab-mcp"
+      ],
       "env": {
         "GITLAB_URL": "https://gitlab.com",
         "GITLAB_TOKEN": "your_gitlab_token_here"
