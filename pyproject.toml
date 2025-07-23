@@ -1,6 +1,6 @@
 [project]
 name = "gitlab-clone-mcp-server"
-version = "1.0.0"
+version = "1.1.0"
 description = "Model Context Protocol server for GitLab API integration"
 authors = [{name = "GitLab MCP", email = "gitlab-mcp@example.com"}]
 readme = "README.md"
@@ -16,8 +16,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "mcp[cli]>=1.2.0",
+    "mcp[cli]>=1.12.1",
     "httpx>=0.25.0",
+    "starlette>=0.37.0",
+    "uvicorn>=0.24.0",
 ]
 requires-python = ">=3.10"
 
@@ -27,7 +29,7 @@ Repository = "https://github.com/skmprb/gitlab-clone-mcp-server"
 Issues = "https://github.com/skmprb/gitlab-clone-mcp-server/issues"
 
 [project.scripts]
-gitlab-mcp = "gitlab_clone_mcp_server:main"
+gitlab-mcp = "gitlab_clone_mcp_server.server:main"
 
 [build-system]
 requires = ["hatchling"]

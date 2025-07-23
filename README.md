@@ -16,6 +16,23 @@ uvx --from gitlab-clone-mcp-server gitlab-mcp
 uv tool install gitlab-clone-mcp-server
 ```
 
+## 🔌 Transport Options
+
+GitLab MCP Server supports three transport types:
+
+```bash
+# Run with stdio transport (default)
+gitlab-mcp stdio
+
+# Run with SSE transport
+gitlab-mcp sse --host localhost --port 8000
+
+# Run with Streamable HTTP transport (recommended for production)
+gitlab-mcp streamable-http --host localhost --port 8000
+```
+
+See [TRANSPORT_OPTIONS.md](TRANSPORT_OPTIONS.md) for detailed configuration.
+
 ## ✨ Key Features
 
 - **Complete GitLab Integration**: 46+ tools covering all major GitLab operations
@@ -135,9 +152,13 @@ uv sync
    gitlab-mcp
    ```
 
-## Claude Desktop Configuration
+## Configuration
+
+### Claude Desktop Configuration
 
 Add to your Claude Desktop config (`%APPDATA%\Claude\claude_desktop_config.json`):
+
+#### Using stdio transport (recommended)
 
 ```json
 {
@@ -146,7 +167,7 @@ Add to your Claude Desktop config (`%APPDATA%\Claude\claude_desktop_config.json`
       "command": "uvx",
       "args": [
         "--from", "gitlab-clone-mcp-server",
-        "gitlab-mcp"
+        "gitlab-mcp", "stdio"
       ],
       "env": {
         "GITLAB_URL": "https://gitlab.com",
@@ -157,108 +178,80 @@ Add to your Claude Desktop config (`%APPDATA%\Claude\claude_desktop_config.json`
 }
 ```
 
+#### Using HTTP transport
+
+If you're running the server with Streamable HTTP transport:
+
+```json
+{
+  "mcpServers": {
+    "gitlab": {
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+        "GITLAB_TOKEN": "your_gitlab_token_here"
+      }
+    }
+  }
+}
+```
+
+### Headers Integration
+
+For applications using MCPToolset, connect with headers:
+
+```python
+import os
+from mcp_toolset import MCPToolset, SseServerParams
+
+gitlab_tools = MCPToolset(
+    connection_params=SseServerParams(
+        url="http://localhost:8000/sse",
+        headers={"GITLAB_TOKEN": os.getenv("GITLAB_TOKEN")},
+    )
+)
+```
+
 ## 💬 Usage Examples
 
-### 🚀 Project Lifecycle Management
-```
-"Create a new private project called 'microservice-api' with description 'REST API service'"
-"Fork the kubernetes/dashboard project to my namespace"
-"Archive the old legacy-system project"
-"Update project 'web-app' visibility to public"
-"Delete the test-project-123 permanently"
-```
+Control GitLab through natural language commands:
 
-### 📋 Issue & Task Management
-```
-"Show all open issues in the backend-service project"
-"Create a bug report titled 'Login fails on mobile' with detailed description"
-"Close issue #45 in project web-frontend"
-"Update issue #12 title to 'Critical: Database connection timeout'"
-```
+**Project Management:**
+- "Create a new private project called 'microservice-api'"
+- "Fork the kubernetes/dashboard project to my namespace"
+- "Archive the old legacy-system project"
 
-### 🔄 Code Review & Collaboration
-```
-"Create merge request from feature/auth-system to main branch"
-"Show all open merge requests in project api-gateway"
-"Merge the approved MR #23 in mobile-app project"
-"Compare the develop and main branches in project core-lib"
-```
+**Issue & Code Review:**
+- "Show all open issues in the backend-service project"
+- "Create merge request from feature/auth-system to main branch"
+- "Merge the approved MR #23 in mobile-app project"
 
-### 📁 File & Repository Management
-```
-"Create a new config.yaml file in project settings with database configuration"
-"Update the README.md file in project docs with installation instructions"
-"Show me the content of package.json in the frontend project"
-"List all files in the src/components directory"
-"Delete the deprecated legacy-config.xml file"
-```
+**Repository Operations:**
+- "Create a new config.yaml file with database configuration"
+- "Show all branches in the web-application project"
+- "Clone the microservices-platform project to ./local-dev"
 
-### 🌿 Branch & Version Control
-```
-"Create a new feature branch called 'user-authentication' from main"
-"Show all branches in the web-application project"
-"Delete the completed feature/old-ui branch"
-"Revert commit abc123def in the production branch"
-"Cherry-pick commit xyz789 from develop to hotfix branch"
-"Create release tag v2.1.0 from main branch"
-```
+**CI/CD & Teams:**
+- "Show running pipelines for the deployment project"
+- "List all my GitLab groups and their members"
 
-### 📦 Local Development
-```
-"Clone the microservices-platform project to ./local-dev"
-"Clone all repositories from the frontend-team group"
-"Clone project using SSH to ~/projects/my-app"
-```
+## 🔧 Authentication Setup
 
-### 🚀 CI/CD Pipeline Management
-```
-"Show running pipelines for the deployment project"
-"Trigger a new pipeline on the main branch"
-"Get details of all jobs in pipeline #456"
-"Show failed pipelines in the testing environment"
-```
+### GitLab Personal Access Token
 
-### 👥 Team & Group Operations
-```
-"List all my GitLab groups and their members"
-"Show members of the backend-team group"
-"Get my current user permissions and profile"
-"Search for projects containing 'microservice' in the name"
-```
+1. Go to GitLab → Settings → Access Tokens
+2. Create token with these scopes:
+   - ✅ `api` - Full API access
+   - ✅ `read_repository` - Read repository data
+   - ✅ `write_repository` - Write repository data
+   - ✅ `read_user` - Read user information
+3. Copy the generated token
 
-## 🔧 Configuration
+### Environment Variables
 
-### Required Environment Variables
-
-| Variable | Description | Example |
+| Variable | Description | Default |
 |----------|-------------|----------|
-| `GITLAB_TOKEN` | Personal Access Token with API permissions | `glpat-xxxxxxxxxxxxxxxxxxxx` |
-| `GITLAB_URL` | GitLab instance URL (optional) | `https://gitlab.com` (default) |
-
-### GitLab Personal Access Token Setup
-
-1. **Navigate to GitLab Settings**:
-   - Go to GitLab → User Settings → Access Tokens
-   - Or visit: `https://gitlab.com/-/profile/personal_access_tokens`
-
-2. **Create New Token**:
-   - **Name**: `MCP Server Token`
-   - **Expiration**: Set appropriate date (or no expiration)
-   - **Scopes**: Select the following:
-     - ✅ `api` - Full API access
-     - ✅ `read_repository` - Read repository data
-     - ✅ `write_repository` - Write repository data
-     - ✅ `read_user` - Read user information
-
-3. **Copy Token**: Save the generated token securely
-
-### Token Permissions
-
-The token needs these scopes for full functionality:
-- **`api`**: Complete API access for all operations
-- **`read_repository`**: Clone, browse files, read commits
-- **`write_repository`**: Create commits, branches, tags
-- **`read_user`**: Get user profile information
+| `GITLAB_TOKEN` | Personal Access Token | Required |
+| `GITLAB_URL` | GitLab instance URL | `https://gitlab.com` |
 
 ## 🔒 Security Best Practices
 
@@ -270,30 +263,17 @@ The token needs these scopes for full functionality:
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+**Token Issues:**
+- ❌ `GITLAB_TOKEN not set` → Set environment variable or provide in headers
+- ❌ `401 Unauthorized` → Check token permissions and validity
+- ❌ `403 Forbidden` → Verify project access permissions
 
-**❌ "GITLAB_TOKEN environment variable not set"**
-- Ensure your token is properly set in environment variables
-- Verify token is not expired
+**Git Operations:**
+- ❌ `Git command not found` → Install Git and add to PATH
 
-**❌ "HTTP Error 401: Unauthorized"**
-- Check token has correct permissions/scopes
-- Verify token is valid and not revoked
-
-**❌ "HTTP Error 403: Forbidden"**
-- Ensure you have access to the requested project/group
-- Check if project is private and you're a member
-
-**❌ "Git command not found" (for clone operations)**
-- Install Git on your system
-- Ensure Git is in your system PATH
-
-### Debug Mode
-
-For debugging, you can test the connection:
+**Test Connection:**
 ```bash
-# Test your token
-curl -H "PRIVATE-TOKEN: your_token_here" "https://gitlab.com/api/v4/user"
+curl -H "PRIVATE-TOKEN: your_token" "https://gitlab.com/api/v4/user"
 ```
 
 ## 🤝 Contributing
